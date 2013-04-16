@@ -21,8 +21,8 @@ public class ControlPanel extends JPanel{
     private JButton startButton, hitButton, stayButton, splitButton, helpButton, endButton;
     private ButtonHandler buttonListener;
     
-    private Deck deck;
-    private Card[] hand;
+    //private Deck deck;
+    //private Card[] hand;
             
     public ControlPanel(ViewPanel view){
         this.view = view;
@@ -74,50 +74,132 @@ public class ControlPanel extends JPanel{
         Card[] user;
         Deck deck;
         int spot, userTotal, dealerTotal;
-        
+        boolean uBust, bJack, end;
+        final int BLJ = 21, HAND = 13;
+          
         public void actionPerformed(ActionEvent e){
             if(e.getActionCommand().equals("START")){
-                dealer = new Card[13];
-                user = new Card[13];
+                dealer = new Card[HAND];
+                user = new Card[HAND];
                 deck = new Deck();
                 spot = 2;
                 userTotal = 0;
                 dealerTotal = 0;
+                uBust = false;
+                bJack = false;
+                end = false;
                 
                 deck.shuffle();
                 
                 for(int i = 0; i < 2; i++){
                     user[i] = deck.deal();
-                    userTotal += user[i].getBNum();
+                    
+                    if((user[i].getHBNum() + userTotal) > BLJ)
+                        userTotal += user[i].getBNum();
+                    else
+                        userTotal += user[i].getHBNum();
+                    
                     System.out.println("USER: " + user[i]);
+                    
                     dealer[i] = deck.deal();
-                    dealerTotal += dealer[i].getBNum();
+                    
+                    if((dealer[i].getHBNum() + dealerTotal) > BLJ)
+                        dealerTotal += dealer[i].getBNum();
+                    else
+                        dealerTotal += dealer[i].getHBNum();
+                    
                     System.out.println("DEALER: " + dealer[i]);
                 }
                 System.out.println("USERTOTAL " + userTotal);
             }
             if(e.getActionCommand().equals("HIT")){
-                if(deck != null){
+                if(deck != null && !end){
                     user[spot] = deck.deal();
-                    userTotal += user[spot].getBNum();
+                    
+                    if((user[spot].getHBNum() + userTotal) > BLJ)
+                        userTotal += user[spot].getBNum();
+                    else
+                        userTotal += user[spot].getHBNum();
+                    
                     spot++;
-                }
                 
-                System.out.println("CARD: "  + user[spot - 1]); 
-                System.out.println("USERTOTAL " + userTotal);
                 
-                if(userTotal == 21){
-                    System.out.println("BLACKJACK");
-                }
-                if(userTotal > 21){
-                    System.out.println("LOOOOSE");
+                    System.out.println("CARD: "  + user[spot - 1]); 
+                    System.out.println("USERTOTAL " + userTotal);
+                    
+                    if(userTotal > BLJ){
+                        userTotal = 0;
+                        for(int i = 0; i < HAND; i++){
+                            if(user[i] == null)
+                                break;
+                            else{
+                                userTotal += user[i].getBNum(); 
+                            }
+                        }
+                    }
+                
+                    System.out.println("CARD: "  + user[spot - 1]); 
+                    System.out.println("USERTOTAL " + userTotal);
+                    
+                    if(userTotal == BLJ){
+                        System.out.println("BLACKJACK");
+                        bJack = true;
+                        end = true;
+                    }
+                    if(userTotal > BLJ){
+                        uBust = true;
+                        end = true;
+                    }
                 }
             }
             if(e.getActionCommand().equals("STAY")){
-                
+                if(!end){
+                    spot = 2;
+                    while(dealerTotal < userTotal && dealerTotal < BLJ){
+                        dealer[spot] = deck.deal();
+                        
+                        if((dealer[spot].getHBNum() + dealerTotal) > BLJ)
+                            dealerTotal += dealer[spot].getBNum();
+                        else
+                            dealerTotal += dealer[spot].getHBNum();
+                        
+                        if(dealerTotal > BLJ){
+                            dealerTotal = 0;
+                            for(int i = 0; i < HAND; i++){
+                                if(dealer[i] == null)
+                                    break;
+                                else{
+                                    dealerTotal += dealer[i].getBNum(); 
+                                }
+                            }
+                        }
+                        
+                        System.out.println("CARD: " + dealer[spot]);
+                        System.out.println("DEALERTOTAL " + dealerTotal);
+                        
+                        if(dealerTotal > BLJ){
+                            System.out.println("DEALER BUST");
+                        }
+                        if(dealerTotal == BLJ){
+                            System.out.println("DEALER BLACKJACK");
+                        }
+                        
+                        spot++;
+                    }
+                    if(dealerTotal > userTotal && dealerTotal <= BLJ){
+                        System.out.println("Dealer Wins");
+                    }
+                    else{
+                        System.out.println("User Wins");
+                    }
+                }
             }
             if(e.getActionCommand().equals("SPLIT")){
-                
+                if(!end){
+                    if(user[0].bequals(user[1])){
+                         
+                    }
+                }
             }
             if(e.getActionCommand().equals("HELP")){
                 JOptionPane.showMessageDialog(null, "Try to get 21!  Beat the dealer to win.  Don't go over 21 or you will bust."

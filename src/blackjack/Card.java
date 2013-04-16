@@ -46,6 +46,12 @@ public class Card implements Comparable{
         return num;
     }
     
+    public int getHBNum(){
+        if(num == 1)
+            return 11;
+        return getBNum();
+    }
+    
     public int getSuit()
     {return suit;}
     
@@ -76,6 +82,11 @@ public class Card implements Comparable{
     public boolean equals(Object o){
         Card c = (Card) o;
         return (num == c.getNum() && suit == c.getSuit());
+    }
+    
+    public boolean bequals(Object o){
+        Card c = (Card) o;
+        return num == c.getBNum();
     }
     
     public String toString(){
